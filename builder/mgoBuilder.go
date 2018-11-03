@@ -2,6 +2,7 @@ package builder
 
 import (
 	"github.com/mashenjun/scaffolding/template"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -33,7 +34,7 @@ func (m *mgoBuilder) PrepareDirs() error {
 	for _, v := range m.dirs {
 		err := os.MkdirAll(v, 0755)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not make dir "+ v)
 		}
 	}
 	return nil
@@ -43,7 +44,7 @@ func (m *mgoBuilder) PrepareDeps() error {
 	for _, v := range m.deps {
 		cmd := exec.Command("go", "get", "-u", v)
 		if err := cmd.Run(); err != nil {
-			return err
+			return errors.Wrap(err, "could not download dependency "+ v)
 		}
 	}
 	return nil
@@ -53,7 +54,7 @@ func (m *mgoBuilder) PrepareFiles() error {
 	for k, v := range m.files {
 		err := ioutil.WriteFile(k, v, 0644)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not write file "+ k)
 		}
 	}
 	return nil

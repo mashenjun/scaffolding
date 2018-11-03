@@ -2,6 +2,7 @@ package builder
 
 import (
 	"github.com/mashenjun/scaffolding/template"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -19,7 +20,6 @@ type ginBuilder struct {
 
 func NewGinBuilder(pPath string) *ginBuilder {
 	dirPaths := []string{
-		pPath,
 		path.Join(pPath, "cmd"),
 		path.Join(pPath, "cmd", "backend"),
 		path.Join(pPath, "com"),
@@ -43,7 +43,7 @@ func (g *ginBuilder) PrepareDirs() error {
 	for _, v := range g.dirs {
 		err := os.MkdirAll(v, 0755)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not make dir "+ v)
 		}
 	}
 	return nil
@@ -53,7 +53,7 @@ func (g *ginBuilder) PrepareDeps() error {
 	for _, v := range g.deps {
 		cmd := exec.Command("go", "get", "-u", v)
 		if err := cmd.Run(); err != nil {
-			return err
+			return errors.Wrap(err, "could not download dependency "+ v)
 		}
 	}
 	return nil
@@ -63,7 +63,7 @@ func (g *ginBuilder) PrepareFiles() error {
 	for k, v := range g.files {
 		err := ioutil.WriteFile(k, v, 0644)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not write file "+ k)
 		}
 	}
 	return nil

@@ -2,6 +2,7 @@ package builder
 
 import (
 	"github.com/mashenjun/scaffolding/template"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
 	"path"
@@ -18,7 +19,6 @@ type nativeBuilder struct {
 
 func NewNativeBuilder(pPath string) *nativeBuilder {
 	dirPaths := []string{
-		pPath,
 		path.Join(pPath, "cmd"),
 		path.Join(pPath, "com"),
 	}
@@ -32,7 +32,7 @@ func (n *nativeBuilder) PrepareDirs() error {
 	for _, v := range n.dirs {
 		err := os.MkdirAll(v, 0755)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not make dir "+ v)
 		}
 	}
 	return nil
@@ -46,7 +46,7 @@ func (n *nativeBuilder) PrepareFiles() error {
 	for k, v := range n.files {
 		err := ioutil.WriteFile(k, v, 0644)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "could not write file "+ k)
 		}
 	}
 	return nil

@@ -13,25 +13,22 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(createCmd)
+	rootCmd.AddCommand(initCmd)
 }
 
-var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "create creates the project directory and init file content under the given project dir",
-	Long:  "create creates the project directory and init file content under the given project dir",
-	Args:  cobra.MaximumNArgs(1),
-	Run:   createRun,
+var initCmd = &cobra.Command{
+	Use:   "init",
+	Short: "init creates the project directory and init file content under the current dir",
+	Long:  `init creates the project directory and init file content under the current dir`,
+	Run:   initRun,
 }
 
-func createRun(cmd *cobra.Command, args []string) {
+func initRun(cmd *cobra.Command, args []string) {
 	var (
 		selectedBuilders []builder.IBuilder
 		withDeps         = false
 	)
-	// Do Stuff Here
-	pPath := args[0]
-	// ask the question one by one
+	var pPath = ""
 	var projectTyp string
 	projectPrompt := &survey.Select{
 		Message: "Select projectTyp type: ",
@@ -105,7 +102,7 @@ START_BUILDING:
 	}
 	confirm := false
 	confirmPrompt := &survey.Confirm{
-		Message: fmt.Sprintf("Build with %s under %s dir?", strings.Join(names, ", "), pPath),
+		Message: fmt.Sprintf("Build with %s under current dir?", strings.Join(names, ", ")),
 	}
 	err = survey.AskOne(confirmPrompt, &confirm, nil)
 	if err != nil {
@@ -118,11 +115,6 @@ START_BUILDING:
 	// build projectTyp
 	if _, err := os.Stat(pPath); !os.IsNotExist(err) {
 		fmt.Printf("%s is already existed\n", pPath)
-		return
-	}
-	err = os.MkdirAll(pPath, 0755)
-	if err != nil {
-		fmt.Printf("could not make dir %v: %v\n", pPath, err)
 		return
 	}
 	errChan := make(chan error)
@@ -145,5 +137,5 @@ START_BUILDING:
 			time.Sleep(100 * time.Millisecond)
 		}
 	}
-	END:
+END:
 }
